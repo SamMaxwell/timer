@@ -42,15 +42,16 @@
       const startActivity = (activityId) => {
         console.log(`starting activity ${activityId}`);
 
-        const activityName = params.get(`a${activityId}`);
-        if (!activityName) {
+        const activityParms = params.get(`a${activityId}`);
+        if (!activityParms) {
           console.log('all done');
           return;
         }
 
-        console.log(`got activity ${activityName}`);
+        console.log(`got activity ${activityParms}`);
+        const [, activityName, , activityDuration] = activityParms.match(/^(.*?)(:(\d{1,2}))$/);
         activity.innerHTML = activityName;
-        let seconds = Number.parseInt(params.get(`m${activityId}`), 10) * 60 + 1;
+        let seconds = Number.parseInt(activityDuration, 10) * 60 + 1;
 
         if (remaining.classList.contains(warningClass))
           remaining.classList.remove(warningClass);
