@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Timer</title>
+  <style>
+    body {
+      background-color: #333;
+      color: #fff;
+      font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+      display: flex;
+      flex-direction: column;
+      font-size: clamp(1em, 25vh, 10em);
+      align-items: center;
+    }
+
+    #remaining {
+      padding: .2em;
+    }
+
+    .warning {
+      background-color: darkred;
+      border: solid 1px black;
+      color: grey;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="activity"></div>
+  <div id="remaining"></div>
+  <script>
+    const zeroPad2 = (value) => `0${value}`.substr(-2);
+    const warningClass = 'warning';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+
+      const activity = document.querySelector('#activity');
+      const remaining = document.querySelector('#remaining');
+
+      const startActivity = (activityId) => {
+        console.log(`starting activity ${activityId}`);
+
+        const activityName = params.get(`a${activityId}`);
+        if (!activityName) {
+          console.log('all done');
+          return;
+        }
+
+        console.log(`got activity ${activityName}`);
+        activity.innerHTML = activityName;
+        let seconds = Number.parseInt(params.get(`m${activityId}`), 10) * 60 + 1;
+
+        if (remaining.classList.contains(warningClass))
+          remaining.classList.remove(warningClass);
+
+        const setRemaining = () => {
+          seconds -= 1;
+
+          if (seconds < 0) {
+            console.log('activity done, starting next one');
+            startActivity(activityId + 1);
+            return;
+          }
+
+          if (seconds <= 120 && !remaining.classList.contains(warningClass))
+            remaining.classList.add(warningClass);
+
+          const remainingMinutes = Math.floor(seconds / 60);
+          const remainingSeconds = seconds % 60;
+
+          remaining.innerHTML = `${remainingMinutes}:${zeroPad2(remainingSeconds)}`;
+          setTimeout(setRemaining, 1000);
+        }
+
+        setRemaining();
+      }
+
+      console.log('starting up');
+      startActivity(0);
+    })
+  </script>
+</body>
+
+</html>
